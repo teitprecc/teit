@@ -1,0 +1,67 @@
+
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct Parcel
+{
+    int weight;
+    int profit;
+    double ratio;
+};
+
+bool compare(Parcel a, Parcel b)
+{
+    return a.ratio > b.ratio;
+}
+
+int main()
+{
+    int n, capacity;
+    Parcel p[100];
+
+    cout << "Enter number of parcels: ";
+    cin >> n;
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Enter weight and profit of parcel " << i + 1 << ": ";
+        cin >> p[i].weight >> p[i].profit;
+
+        p[i].ratio = (double)p[i].profit / p[i].weight;
+    }
+
+    cout << "Enter truck capacity: ";
+    cin >> capacity;
+
+    sort(p, p + n, compare);
+
+    double totalProfit = 0;
+
+    for (int i = 0; i < n && capacity > 0; i++)
+    {
+        if (p[i].weight <= capacity)
+        {
+            capacity -= p[i].weight;
+            totalProfit += p[i].profit;
+
+            cout << "Selected parcel: "
+                 << p[i].weight << " kg (Full)\n";
+        }
+        else
+        {
+            double fraction = (double)capacity / p[i].weight;
+
+            totalProfit += p[i].profit * fraction;
+
+            cout << "Selected parcel: "
+                 << fraction * 100 << "% (Partial)\n";
+
+            capacity = 0;
+        }
+    }
+
+    cout << "\nMaximum Profit = " << totalProfit << endl;
+
+    return 0;
+}

@@ -1,0 +1,379 @@
+
+#include <iostream>
+#include <queue>
+#include <algorithm>
+using namespace std;
+
+struct Node
+{
+    int data;
+    Node *left, *right;
+};
+
+class BST
+{
+    Node* root;
+
+    Node* insert(Node* r, int x)
+    {
+        if (r == NULL)
+        {
+            Node* n = new Node{x, NULL, NULL};
+            return n;
+        }
+
+        if (x < r->data)
+            r->left = insert(r->left, x);
+        else if (x > r->data)
+            r->right = insert(r->right, x);
+        else
+            cout << "Duplicate entry not allowed!\n";
+
+        return r;
+    }
+
+    Node* findMin(Node* r)
+    {
+        while (r->left != NULL)
+            r = r->left;
+        return r;
+    }
+
+    Node* deleteNode(Node* r, int x)
+    {
+        if (r == NULL)
+            return NULL;
+
+        if (x < r->data)
+            r->left = deleteNode(r->left, x);
+        else if (x > r->data)
+            r->right = deleteNode(r->right, x);
+        else
+        {
+            if (r->left == NULL)
+            {
+                Node* temp = r->right;
+                delete r;
+                return temp;
+            }
+            else if (r->right == NULL)
+            {
+                Node* temp = r->left;
+                delete r;
+                return temp;
+            }
+
+            Node* temp = findMin(r->right);
+            r->data = temp->data;
+            r->right = deleteNode(r->right, temp->data);
+        }
+
+        return r;
+    }
+
+    bool search(Node* r, int x)
+    {
+        if (r == NULL)
+            return false;
+
+        if (r->data == x)
+            return true;
+
+        if (x < r->data)
+            return search(r->left, x);
+
+        return search(r->right, x);
+    }
+
+    void inorder(Node* r)
+    {
+        if (r != NULL)
+        {
+            inorder(r->left);
+            cout << r->data << " ";
+            inorder(r->right);
+        }
+    }
+
+    void preorder(Node* r)
+    {
+        if (r != NULL)
+        {
+            cout << r->data << " ";
+            preorder(r->left);
+            preorder(r->right);
+        }
+    }
+
+    void postorder(Node* r)
+    {
+        if (r != NULL)
+        {
+            postorder(r->left);
+            postorder(r->right);
+            cout << r->data << " ";
+        }
+    }
+
+    int depth(Node* r)
+    {
+        if (r == NULL)
+            return 0;
+
+        return 1 + max(depth(r->left), depth(r->right));
+    }
+
+    void mirror(Node* r)
+    {
+        if (r != NULL)
+        {
+            mirror(r->right);
+            cout << r->data << " ";
+            mirror(r->left);
+        }
+    }
+
+    Node* copyTree(Node* r)
+    {
+        if (r == NULL)
+            return NULL;
+
+        Node* n = new Node{r->data, NULL, NULL};
+        n->left = copyTree(r->left);
+        n->right = copyTree(r->right);
+
+        return n;
+    }
+
+    void parents(Node* r)
+    {
+        if (r != NULL)
+        {
+            if (r->left != NULL || r->right != NULL)
+            {
+                cout << r->data << " : ";
+
+                if (r->left != NULL)
+                    cout << "Left = " << r->left->data << " ";
+
+                if (r->right != NULL)
+                    cout << "Right = " << r->right->data;
+
+                cout << endl;
+            }
+
+            parents(r->left);
+            parents(r->right);
+        }
+    }
+
+    void leaves(Node* r)
+    {
+        if (r != NULL)
+        {
+            if (r->left == NULL && r->right == NULL)
+                cout << r->data << " ";
+
+            leaves(r->left);
+            leaves(r->right);
+        }
+    }
+
+public:
+
+    BST()
+    {
+        root = NULL;
+    }
+
+    void insertValue(int x)
+    {
+        root = insert(root, x);
+    }
+
+    void deleteValue(int x)
+    {
+        if (!search(root, x))
+            cout << "Value not found!\n";
+        else
+        {
+            root = deleteNode(root, x);
+            cout << "Node deleted successfully.\n";
+        }
+    }
+
+    void searchValue(int x)
+    {
+        if (search(root, x))
+            cout << "Value found!\n";
+        else
+            cout << "Value not found!\n";
+    }
+
+    void display()
+    {
+        cout << "Inorder: ";
+        inorder(root);
+
+        cout << "\nPreorder: ";
+        preorder(root);
+
+        cout << "\nPostorder: ";
+        postorder(root);
+
+        cout << endl;
+    }
+
+    void displayDepth()
+    {
+        cout << "Depth of tree: " << depth(root) << endl;
+    }
+
+    void displayMirror()
+    {
+        cout << "Mirror Inorder: ";
+        mirror(root);
+        cout << endl;
+    }
+
+    void displayCopy()
+    {
+        Node* temp = copyTree(root);
+
+        cout << "Copied tree: ";
+        inorder(temp);
+        cout << endl;
+    }
+
+    void displayParents()
+    {
+        cout << "Parent nodes with children:\n";
+        parents(root);
+    }
+
+    void displayLeaves()
+    {
+        cout << "Leaf nodes: ";
+        leaves(root);
+        cout << endl;
+    }
+
+    void levelWise()
+    {
+        if (root == NULL)
+        {
+            cout << "Tree is empty!\n";
+            return;
+        }
+
+        queue<Node*> q;
+        q.push(root);
+
+        cout << "Level-wise display:\n";
+
+        while (!q.empty())
+        {
+            int n = q.size();
+
+            while (n--)
+            {
+                Node* temp = q.front();
+                q.pop();
+
+                cout << temp->data << " ";
+
+                if (temp->left != NULL)
+                    q.push(temp->left);
+
+                if (temp->right != NULL)
+                    q.push(temp->right);
+            }
+
+            cout << endl;
+        }
+    }
+};
+
+int main()
+{
+    BST tree;
+    int choice, x;
+
+    do
+    {
+        cout << "\n--- BINARY SEARCH TREE ---\n";
+        cout << "1. Insert\n";
+        cout << "2. Delete\n";
+        cout << "3. Search\n";
+        cout << "4. Display Traversals\n";
+        cout << "5. Display Depth\n";
+        cout << "6. Mirror Image\n";
+        cout << "7. Create Copy\n";
+        cout << "8. Parent Nodes and Children\n";
+        cout << "9. Display Leaf Nodes\n";
+        cout << "10. Level Wise Display\n";
+        cout << "11. Exit\n";
+
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+            case 1:
+                cout << "Enter value: ";
+                cin >> x;
+                tree.insertValue(x);
+                break;
+
+            case 2:
+                cout << "Enter value to delete: ";
+                cin >> x;
+                tree.deleteValue(x);
+                break;
+
+            case 3:
+                cout << "Enter value to search: ";
+                cin >> x;
+                tree.searchValue(x);
+                break;
+
+            case 4:
+                tree.display();
+                break;
+
+            case 5:
+                tree.displayDepth();
+                break;
+
+            case 6:
+                tree.displayMirror();
+                break;
+
+            case 7:
+                tree.displayCopy();
+                break;
+
+            case 8:
+                tree.displayParents();
+                break;
+
+            case 9:
+                tree.displayLeaves();
+                break;
+
+            case 10:
+                tree.levelWise();
+                break;
+
+            case 11:
+                cout << "Exiting...\n";
+                break;
+
+            default:
+                cout << "Invalid choice!\n";
+        }
+
+    } while (choice != 11);
+
+    return 0;
+}
